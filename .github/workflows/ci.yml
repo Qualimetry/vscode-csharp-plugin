@@ -1,0 +1,105 @@
+name: CI (VS Code Extension)
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+  workflow_dispatch: {}
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+
+      - uses: actions/setup-node@v5
+        with:
+          node-version: '20'
+
+      - name: Set extension version from VERSION
+        run: |
+          VERSION=$(cat VERSION | tr -d '[:space:]')
+          node -e "
+            const p = require('./vscode-client/package.json');
+            p.version = '$VERSION';
+            require('fs').writeFileSync('./vscode-client/package.json', JSON.stringify(p, null, 2) + '\n');
+          "
+
+      - name: Build VS Code extension
+        working-directory: vscode-client
+        run: |
+          npm install --registry https://registry.npmjs.org/
+          npm run compile
+          cp ../README.md README.md
+          npx --yes @vscode/vsce package --allow-missing-repository
+
+      - name: Upload VSIX artifact
+        uses: actions/upload-artifact@v6
+        with:
+          name: vsix
+          path: vscode-client/*.vsix
+          retention-days: 30
+
+  release:
+    needs: build
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main' && startsWith(github.event.head_commit.message, 'release:')
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v6
+
+      - uses: actions/setup-node@v5
+        with:
+          node-version: '20'
+
+      - name: Read version
+        id: version
+        run: echo "version=$(cat VERSION | tr -d '[:space:]')" >> "$GITHUB_OUTPUT"
+
+      - name: Build and package VS Code extension
+        working-directory: vscode-client
+        run: |
+          node -e "
+            const p = require('./package.json');
+            p.version = '${{ steps.version.outputs.version }}';
+            require('fs').writeFileSync('./package.json', JSON.stringify(p, null, 2) + '\n');
+          "
+          npm install --registry https://registry.npmjs.org/
+          npm run compile
+          cp ../README.md README.md
+          npx --yes @vscode/vsce package --allow-missing-repository
+
+      - name: Extract release notes from CHANGELOG
+        run: |
+          VERSION="${{ steps.version.outputs.version }}"
+          if [ -f CHANGELOG.md ]; then
+            awk "/^## \[${VERSION}\]/{flag=1; next} /^## \[/{flag=0} flag" CHANGELOG.md > release-notes.md
+          fi
+          if [ ! -s release-notes.md ]; then
+            echo "Release ${VERSION}" > release-notes.md
+          fi
+
+      - name: Create GitHub Release
+        uses: softprops/action-gh-release@v3
+        continue-on-error: true
+        with:
+          tag_name: v${{ steps.version.outputs.version }}
+          name: v${{ steps.version.outputs.version }}
+          body_path: release-notes.md
+          files: vscode-client/*.vsix
+
+      - name: Publish to Visual Studio Marketplace
+        if: contains(github.event.head_commit.message, '[publish]')
+        working-directory: vscode-client
+        run: npx --yes @vscode/vsce publish --packagePath "qualimetry-vscode-csharp-plugin-${{ steps.version.outputs.version }}.vsix"
+        env:
+          VSCE_PAT: ${{ secrets.VSCE_PAT }}
+
+      - name: Publish to Open VSX (Cursor and other VS Code-compatible editors)
+        if: contains(github.event.head_commit.message, '[publish]')
+        working-directory: vscode-client
+        run: npx --yes ovsx publish "qualimetry-vscode-csharp-plugin-${{ steps.version.outputs.version }}.vsix"
+        env:
+          OVSX_PAT: ${{ secrets.OVSX_PAT }}
