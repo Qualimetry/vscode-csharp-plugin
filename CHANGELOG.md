@@ -1,0 +1,71 @@
+# Changelog
+
+## [Unreleased]
+
+- (None.)
+
+## [1.0.12] - 2026-06-23
+
+- General improvements to analyzers.
+
+## [1.0.11] - 2026-06-23
+
+- Version-alignment release to keep the C# plugin family on a single version.
+
+## [1.0.10] - 2026-06-23
+
+- General improvements to analyzers.
+
+## [1.0.9] - 2026-06-20
+
+- Auto-activation: opening a C# project now offers to add the analyzer so findings appear as you type. Set `csharpAnalyzer.autoProvision` to `false` to disable.
+- Clarified wording: the extension provides real-time analysis once provisioned, run by your editor's built-in C# engine.
+
+## [1.0.8] - 2026-06-19
+
+- Version-alignment release to keep the C# plugin family on a single version.
+
+## [1.0.7] - 2026-06-18
+
+- Five new analyzer rules plus extended readonly-array coverage (210 rules total); synced from the SonarQube plugin release.
+
+## [1.0.6] - 2026-06-18
+
+- Six new analyzer rules (205 rules total); synced from the SonarQube plugin release.
+
+## [1.0.5] - 2026-06-18
+
+- Configurable rules now expose native SonarQube rule parameters (editable in the UI and synced to the IDE in connected mode) instead of static documentation.
+
+## [1.0.4] - 2026-06-17
+
+- Aligned the SonarQube rule lookup to the `qualimetry-csharp` rule namespace so synced severities match the updated server plugin.
+
+## [1.0.3] - 2026-06-17
+
+- Settings are now namespaced under `csharpAnalyzer.*` (previously `qualimetry.*`). Update any existing settings to the new keys.
+
+## [1.0.2] - 2026-06-17
+
+- Version-alignment release to keep the C# plugin family on a single version.
+
+## [1.0.1] - 2026-06-17
+
+- Add the Qualimetry extension icon so it displays in the Extensions view and on the extension page.
+- Restore the CI status badge in the README.
+
+## [1.0.0] - 2026-06-17
+
+First general release.
+
+- Add the `Qualimetry.CSharp.Analyzer` package to a selected `.csproj` from the command palette.
+- Sync the active rule set and severities from a SonarQube quality profile into a workspace `.globalconfig`.
+- Rule keys and severities align with the SonarQube plugin and the Rider plugin.
+
+## [0.1.0] - 2026-06-17
+
+First release.
+
+- Add the `Qualimetry.CSharp.Analyzer` package to a selected `.csproj` from the command palette.
+- Sync the active rule set and severities from a SonarQube quality profile into a workspace `.globalconfig`.
+- Rule keys and severities align with the SonarQube plugin and the Rider plugin.
