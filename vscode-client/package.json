@@ -1,0 +1,74 @@
+{
+  "name": "qualimetry-vscode-csharp-plugin",
+  "displayName": "Qualimetry C# Analyzer",
+  "description": "Real-time Qualimetry C# analysis in your editor. Provisions the Qualimetry Roslyn analyzer and syncs rules from a SonarQube quality profile; findings then appear as you type via your IDE's built-in C# engine.",
+  "version": "1.0.10",
+  "publisher": "Qualimetry",
+  "license": "Apache-2.0",
+  "icon": "icon.png",
+  "engines": {
+    "vscode": "^1.85.0"
+  },
+  "categories": [
+    "Linters",
+    "Programming Languages"
+  ],
+  "activationEvents": [
+    "onCommand:csharp.provisionAnalyzer",
+    "onCommand:csharp.syncProfile",
+    "workspaceContains:**/*.csproj",
+    "onLanguage:csharp"
+  ],
+  "main": "./out/extension.js",
+  "contributes": {
+    "commands": [
+      {
+        "command": "csharp.provisionAnalyzer",
+        "title": "Qualimetry: Add C# analyzer to project"
+      },
+      {
+        "command": "csharp.syncProfile",
+        "title": "Qualimetry: Sync rules from SonarQube profile"
+      }
+    ],
+    "configuration": {
+      "title": "Qualimetry C#",
+      "properties": {
+        "csharpAnalyzer.autoProvision": {
+          "type": "boolean",
+          "default": true,
+          "description": "When a C# project is opened without the Qualimetry analyzer referenced, offer to add it so findings appear as you type."
+        },
+        "csharpAnalyzer.sonarqube.url": {
+          "type": "string",
+          "default": "",
+          "description": "Base URL of the SonarQube server, for example https://sonar.example.com."
+        },
+        "csharpAnalyzer.sonarqube.token": {
+          "type": "string",
+          "default": "",
+          "description": "SonarQube user token. Sent as the Basic auth username with an empty password."
+        },
+        "csharpAnalyzer.profileName": {
+          "type": "string",
+          "default": "Qualimetry C#",
+          "description": "Name of the SonarQube quality profile to sync rules from."
+        },
+        "csharpAnalyzer.analyzerVersion": {
+          "type": "string",
+          "default": "1.0.10",
+          "description": "Version of the Qualimetry.CSharp.Analyzer NuGet package to reference."
+        }
+      }
+    }
+  },
+  "scripts": {
+    "compile": "tsc -p ./",
+    "watch": "tsc -watch -p ./"
+  },
+  "devDependencies": {
+    "@types/node": "^18.19.0",
+    "@types/vscode": "^1.85.0",
+    "typescript": "^5.4.0"
+  }
+}
